@@ -83,7 +83,12 @@ def get_ctfs(max_ctfs: int, days: int) -> List[CTF]:
           f'&start={int(start.timestamp())}&finish={int(end.timestamp())}'
 
     try:
-        entries = requests.get(url, headers={'user-agent': ''}).json()
+        request = requests.get(url, headers={'user-agent': ''})
+        try:
+            entries = request.json()
+        except JSONDecodeError as e:
+            print(f'JSONError: {e} | {request.text} | {request.status_code}')
+            return []
     except requests.exceptions.RequestException as e:
         print(f'Error: {e}')
         return []
@@ -101,7 +106,7 @@ def build_message(max_ctfs: int, days: int, cache_path: str) -> Union[Hook, None
     embeds = [ctf.generate_embed() for ctf in ctfs]
     ids = ','.join([str(ctf.cid) for ctf in ctfs])
 
-    print(f'CTF IDs: {ids}')
+    print('CTFs:', [embed.title for embed in embeds])
 
     if cache == ids:
         return None
