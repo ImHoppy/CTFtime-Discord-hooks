@@ -82,7 +82,13 @@ def get_ctfs(max_ctfs: int, days: int) -> List[CTF]:
     url = f'https://ctftime.org/api/v1/events/?limit={max_ctfs}' \
           f'&start={int(start.timestamp())}&finish={int(end.timestamp())}'
 
-    return [CTF(entry) for entry in requests.get(url, headers={'user-agent': ''}).json()]
+    try:
+        entries = requests.get(url, headers={'user-agent': ''}).json()
+    except requests.exceptions.RequestException as e:
+        print(f'Error: {e}')
+        return []
+
+    return [CTF(entry) for entry in entries]
 
 
 def build_message(max_ctfs: int, days: int, cache_path: str) -> Union[Hook, None]:
@@ -94,6 +100,9 @@ def build_message(max_ctfs: int, days: int, cache_path: str) -> Union[Hook, None
     ctfs = get_ctfs(max_ctfs, days)
     embeds = [ctf.generate_embed() for ctf in ctfs]
     ids = ','.join([str(ctf.cid) for ctf in ctfs])
+
+    print(f'CTF IDs: {ids}')
+
     if cache == ids:
         return None
     else:
