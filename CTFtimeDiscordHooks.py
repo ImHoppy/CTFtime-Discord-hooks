@@ -1,5 +1,6 @@
 import argparse
 import requests
+import json
 
 from typing import List, Union
 from datetime import datetime, timedelta
@@ -86,7 +87,7 @@ def get_ctfs(max_ctfs: int, days: int) -> List[CTF]:
         request = requests.get(url, headers={'user-agent': ''})
         try:
             entries = request.json()
-        except JSONDecodeError as e:
+        except json.decoder.JSONDecodeError as e:
             print(f'JSONError: {e} | {request.text} | {request.status_code}')
             return []
     except requests.exceptions.RequestException as e:
